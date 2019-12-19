@@ -156,15 +156,20 @@ docker-compose up
 
 ### Create a default pool for your application
 :exclamation: **important**
-Make sure you have set at least one default pool (default_pool) for airflow. Unless, your scheduler will not work.
+Make sure you have set at least one default pool (default_pool) for airflow admin. 
+* Navigate to http://localhost:8080/admin/pool/ and verify that there is a variable called `default_pool`. If not, you 
+will have to create one and pass it the value 256.
+
+**A little more about airflow Pools**
 Some systems can get overwhelmed when too many processes hit them at the same time. Airflow pools can be used to limit 
 the execution parallelism on arbitrary sets of tasks. The list of pools is managed in the UI (Menu -> Admin -> Pools) 
 by giving the pools a name and assigning it a number of worker slots. Tasks can then be associated with one of the existing pools by using the pool parameter when creating tasks (i.e., instantiating operators).
 How to here [here](https://airflow.apache.org/docs/stable/concepts.html?highlight=pool)
 
-### Create a slack connection ID with your slack_bot token
+### (Optional) Create a slack connection ID with your slack_bot token 
+P.S: Unless you complete this step, you won't be able to use the slack built-in functionality.
 Go to [http://localhost:8080/admin/connection/] create a new connection with the following:
-> conn_id=slack
+> conn_id=slack_token_id
 
 > login=your slack channel name": channel where you wnat slack to send your messages
 
@@ -239,8 +244,8 @@ However, I strongly recommend also reading the documentation [here](https://hypo
 A step by step guide to use the project generated can be viewed [here](%7B%7Bcookiecutter.project_slug%7D%7D/Readme.md)
 
 # TL;DR
-Not recommended, but to automatically initialize your environment and bypass the initial setup, you can simply run in 
-the ui, the dag called initialize_environment when your application launches the first time.
+Not recommended, but to automatically initialize your airflow environment and bypass the initial setup, 
+you can simply run in the ui, the dag called `initialize_environment` when your application launches the first time.
 
 ### Resources
 [Airflow Key Concepts](https://airflow.apache.org/docs/stable/concepts.html)
@@ -250,4 +255,6 @@ the ui, the dag called initialize_environment when your application launches the
 [Other Airflow Guides](https://github.com/astronomer/airflow-guides/tree/master/guides)
 
 # License
-This project is licensed under the terms of the [BSD License](/LICENSE)
+This project is licensed under the terms of the [MIT License](/LICENSE)
+*  [Airflow Licenses](https://github.com/apache/airflow/tree/master/licenses)
+*  [Airflow Credits](https://github.com/apache/airflow)

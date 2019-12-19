@@ -62,7 +62,7 @@ def create_dag(dag_id, schedule, dag_number, default_args, catchup=False):
             task_id="notify_user",
             pool="default_pool",
             txt="test msge",
-            channel=BaseHook.get_connection("slack").login,
+            channel=BaseHook.get_connection("slack_token_id").login,
         )
 
         run_this_first = BashOperator(task_id="run_this_first", bash_command="echo 1")

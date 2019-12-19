@@ -48,7 +48,7 @@ def create_dag(dag_id, schedule, dag_number, default_args, catchup=False):
             task_id="task_6",
             pool="default_pool",
             txt="Hi there! this is a slack notification from your dag",
-            channel=BaseHook.get_connection("slack").login,
+            channel=BaseHook.get_connection("slack_token_id").login,
         )
 
         task_7 = DummyOperator(task_id="task_7")
@@ -67,6 +67,7 @@ def create_dag(dag_id, schedule, dag_number, default_args, catchup=False):
 
 # Dynamically generates dags based on variable provided in the UI
 dag_id = "sample_workflow"
+dag_number = dag_id
 
 default_args = {
     "owner": os.environ["DAG_OWNER"],
@@ -83,5 +84,4 @@ default_args = {
 
 # schedule = "@daily"
 schedule = "*/5 * * * *"  ## every 5 minutes
-
-globals()[dag_id] = create_dag(dag_id, schedule, default_args)
+globals()[dag_id] = create_dag(dag_id, schedule, dag_number, default_args)

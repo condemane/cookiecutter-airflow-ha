@@ -29,7 +29,7 @@ dag = DAG('initialize_environment',
 def create_connections():
     session = settings.Session()  # get the session
     slack_conn = Connection(
-        conn_id='slack',
+        conn_id='slack_token_id',
         login=os.environ['DEFAULT_SLACK_CHANNEL'],
         password=os.environ['SLACK_BOT_TOKEN'],
     )  # create a connection object

@@ -31,7 +31,7 @@ It also uses slack for realtime notifications. To create a slack bot token, plea
 # Features
 In order to experience the features below, please build a project from this cookiecutter template and 
 check the Readme file of the generated project [here](%7B%7Bcookiecutter.repo_name%7D%7D/Readme.md).
-To generate your project, simply run ```cookiecutter cookiecutter-airflow```
+To generate your project, simply run ```cookiecutter https://github.com/condemane/cookiecutter-airflow-ha.git```
 
 > **Apache Airflow**  for workflows scheduling and monitoring
 
