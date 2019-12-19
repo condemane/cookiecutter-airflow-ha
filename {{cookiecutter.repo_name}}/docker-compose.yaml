@@ -30,7 +30,7 @@ services:
           - redis
       tty: true
       environment:
-          - LOAD_EX
+          - LOAD_EX=y
           - FERNET_KEY
           - EXECUTOR
           - DAG_OWNER

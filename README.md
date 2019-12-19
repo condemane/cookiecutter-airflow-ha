@@ -7,7 +7,7 @@ It also uses slack for realtime notifications. To create a slack bot token, plea
 [this](https://slack.com/help/articles/215770388-Create-and-regenerate-API-tokens).
 
 ##### Health status
-[![Travis CI - Build Status](https://travis-ci.com/csci-e-29/2019fa-final-project-condeo.svg?token=rXdRYQiZsJAn9WYQmVCs&branch=master)](https://travis-ci.com/csci-e-29/2019fa-final-project-condeo)
+[![Travis-CI Build Status](https://travis-ci.com/condemane/cookiecutter-airflow-ha.svg?branch=master)](https://travis-ci.com/condemane/cookiecutter-airflow-ha)
 
 [![Test Coverage](https://api.codeclimate.com/v1/badges/2babb53ece2cdf5f26b5/test_coverage)](https://codeclimate.com/repos/5df69446d07d92016300451e/test_coverage)
 
