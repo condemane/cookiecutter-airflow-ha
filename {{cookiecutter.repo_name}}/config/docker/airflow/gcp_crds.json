@@ -1,0 +1,5 @@
+Conn Id: gcp_test
+Conn Type: Google Cloud Platform
+Project Id: my-gcp-project-id-00000
+Keyfile Path: /etc/gcp/creds.json
+Scopes (comma seperated): https://www.googleapis.com/auth/cloud-platform

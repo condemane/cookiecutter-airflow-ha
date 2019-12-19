@@ -1,0 +1,120 @@
+FROM python:3.7
+ARG CI_USER_TOKEN
+RUN echo "machine github.com login $CI_USER_TOKEN" >~/.netrc
+
+RUN apt-get update
+RUN apt-get update && apt-get install -y --no-install-recommends apt-transport-https apt-utils sshpass vim
+
+# install Java for Hadoop commands
+RUN apt-get update
+RUN apt-get install -y software-properties-common
+RUN apt-get install -y default-jdk
+RUN /bin/bash -c "source ~/.bashrc"
+ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64/
+
+# Add java home to path
+RUN echo 'export PATH="$PATH:/usr/lib/jvm/java-11-openjdk-amd64/"' >> ~/.bashrc
+RUN /bin/bash -c "source ~/.bashrc"
+RUN java -version
+RUN javac -version
+RUN echo 'To find your current java properties, run: java -XshowSettings:properties -version'
+
+# Install iptables and ipaddress
+RUN apt-get -y install iptables net-tools
+
+# Never prompts the user for choices on installation/configuration of packages
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=America/Los_Angeles
+ENV TERM linux
+
+# AIRFLOW STUFF
+ARG AIRFLOW_VERSION=1.10.6
+ARG AIRFLOW_HOME=/root/airflow
+ARG AIRFLOW_DEPS=""
+ARG PYTHON_DEPS=""
+ENV AIRFLOW_GPL_UNIDECODE yes
+
+# Define en_US.
+ENV LANGUAGE en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LC_ALL en_US.UTF-8
+ENV LC_CTYPE en_US.UTF-8
+ENV LC_MESSAGES en_US.UTF-8
+
+# postgres database adapter
+RUN pip3 install psycopg2 && pip3 install psycopg2-binary
+
+RUN apt-get update
+
+RUN set -ex \
+    && buildDeps=' \
+        freetds-dev \
+        libkrb5-dev \
+        libsasl2-dev \
+        libssl-dev \
+        libffi-dev \
+        libpq-dev \
+        git \
+    ' \
+    && apt-get install -yqq --no-install-recommends \
+        $buildDeps \
+        freetds-bin \
+        build-essential \
+        curl \
+        rsync \
+        libpq5 \
+        netcat \
+        locales \
+    && sed -i 's/^# en_US.UTF-8 UTF-8$/en_US.UTF-8 UTF-8/g' /etc/locale.gen \
+    && locale-gen \
+    && update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 \
+    && useradd -ms /bin/bash -d ${AIRFLOW_HOME} airflow \
+    && pip3 install -U setuptools wheel \
+    && pip3 install pytz \
+    && pip3 install pyOpenSSL \
+    && pip3 install ndg-httpsclient \
+    && pip3 install pyasn1 \
+    && pip3 install apache-airflow[crypto,celery,postgres,jdbc,mysql,s3,oracle,password,slack,kubernetes,ssh${AIRFLOW_DEPS:+,}${AIRFLOW_DEPS}]==${AIRFLOW_VERSION} \
+    && pip3 install 'redis>=2.10.5,<3' \
+    && pip3 install boto3 \
+    && if [ -n "${PYTHON_DEPS}" ]; then pip3 install ${PYTHON_DEPS}; fi \
+    && apt-get purge --auto-remove -yqq $buildDeps \
+    && apt-get autoremove -yqq --purge \
+    && apt-get clean \
+    && rm -rf \
+        /var/lib/apt/lists/* \
+        /tmp/* \
+        /var/tmp/* \
+        /usr/share/man \
+        /usr/share/doc \
+        /usr/share/doc-base
+
+COPY script/entrypoint.sh /entrypoint.sh
+COPY requirements.txt /requirements.txt
+
+# create the rsync files
+COPY rsyncd.conf /etc/rsyncd.conf
+
+# run rsync in daemon mode
+RUN rsync --daemon
+
+#verify rsync is working
+RUN ps x | grep rsync
+
+# replace airflow log with your Logo
+COPY logo/airflow_64x64_emoji_transparent.png /usr/local/lib/python3.6/site-packages/airflow/www/static/
+COPY logo/airflow_64x64_emoji_transparent.png /usr/local/lib/python3.6/site-packages/airflow/www_rbac/static/
+
+COPY ./airflow/airflow.cfg ${AIRFLOW_HOME}/airflow.cfg
+RUN chown -R airflow: ${AIRFLOW_HOME}
+
+EXPOSE 8080 5555 8793 80
+
+# please uncomment this before releasing code to production
+## this ($USER airflow) cause bugs: not found certain env variables and not found pyodbc
+# USER airflow
+
+ADD . ${AIRFLOW_HOME}
+WORKDIR ${AIRFLOW_HOME}
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["webserver"] # set default arg for entrypoint

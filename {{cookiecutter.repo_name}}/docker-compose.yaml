@@ -1,0 +1,131 @@
+version: "3"
+
+services:
+  redis:
+    container_name: airflow-redis
+    image: 'redis:3.2.7'
+
+  postgres:
+      image: postgres:latest
+      container_name: airflow-database
+      environment:
+          - POSTGRES_USER
+          - POSTGRES_PASSWORD
+          - POSTGRES_DB
+      ports:
+          - 5432:5432
+      volumes:
+          - ./postgres_data:/var/lib/postgresql/data:rw
+      command: postgres -c 'max_connections=1000'
+
+  webserver:
+      container_name: airflow-webserver
+      build:
+        context: config/docker
+        dockerfile: dockerfile
+      image: {{ cookiecutter.package_name }}
+      restart: always
+      depends_on:
+          - postgres
+          - redis
+      tty: true
+      environment:
+          - LOAD_EX
+          - FERNET_KEY
+          - EXECUTOR
+          - DAG_OWNER
+          - AWS_BUCKET_NAME
+          - AWS_ACCESS_KEY
+          - AWS_SECRET_ACCESS_KEY
+          - S3_BUCKET_NAME
+          - S3_BUCKET_FOLDER
+          - DEFAULT_SLACK_CHANNEL
+          - SLACK_BOT_TOKEN
+      volumes:
+          - ./dags:/usr/local/airflow/dags
+          - ./logs:/usr/local/airflow/logs
+          - ./scripts:/usr/local/scripts
+          - ./readme.md:/usr/local/airflow/readme.md
+      ports:
+          - 8080:8080
+      command: webserver
+      healthcheck:
+          test: ["CMD-SHELL", "[ -f /usr/local/airflow/airflow-webserver.pid ]"]
+          interval: 30s
+          timeout: 30s
+          retries: 3
+
+  flower:
+        image: {{ cookiecutter.package_name }}
+        restart: always
+        container_name: airflow-dashboard
+        restart: always
+        depends_on:
+            - redis
+            - webserver
+            - postgres
+        environment:
+            - EXECUTOR
+        volumes:
+            - ./dags:/usr/local/airflow/dags
+            - ./logs:/usr/local/airflow/logs
+            - ./scripts:/usr/local/scripts
+            - ./readme.md:/usr/local/airflow/readme.md
+        ports:
+            - "5555:5555"
+        command: flower
+
+  scheduler:
+        container_name: airflow-scheduler
+        image: {{ cookiecutter.package_name }}
+        restart: always
+        depends_on:
+            - webserver
+            - redis
+            - postgres
+        volumes:
+            - ./dags:/usr/local/airflow/dags
+            - ./logs:/usr/local/airflow/logs
+            - ./scripts:/usr/local/scripts
+            - ./readme.md:/usr/local/airflow/readme.md
+        environment:
+            - FERNET_KEY
+            - EXECUTOR
+            - DAG_OWNER
+            - AWS_BUCKET_NAME
+            - AWS_ACCESS_KEY
+            - AWS_SECRET_ACCESS_KEY
+            - S3_BUCKET_NAME
+            - S3_BUCKET_FOLDER
+            - DEFAULT_SLACK_CHANNEL
+            - SLACK_BOT_TOKEN
+        command: scheduler
+
+  worker:
+        image: {{ cookiecutter.package_name }}
+        restart: always
+        depends_on:
+            - webserver
+            - scheduler
+            - postgres
+        volumes:
+            - ./dags:/usr/local/airflow/dags
+            - ./logs:/usr/local/airflow/logs
+            - ./scripts:/usr/local/scripts
+            - ./readme.md:/usr/local/airflow/readme.md
+        environment:
+            - C_FORCE_ROOT # must have in order for celery and the worker to work.
+            - FERNET_KEY
+            - EXECUTOR
+            - DAG_OWNER
+            - AWS_BUCKET_NAME
+            - AWS_ACCESS_KEY
+            - AWS_SECRET_ACCESS_KEY
+            - S3_BUCKET_NAME
+            - S3_BUCKET_FOLDER
+            - DEFAULT_SLACK_CHANNEL
+            - SLACK_BOT_TOKEN
+        command: worker
+volumes:
+  postgres_data:
+    driver: local
