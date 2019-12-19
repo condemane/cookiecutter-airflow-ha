@@ -7,7 +7,6 @@
   "project_short_description": "Boilerplate airflow+celery project using redis and postgres sql running on docker.\n",
   "package_name": "{{ cookiecutter.project_name|lower|replace(' ','_')|replace('-','_') }}",
   "release_date": "{% now 'local' %}",
-  "install_airflow_examples": ["yes","no"],
   "repo_name": "{{ cookiecutter.project_slug }}",
   "aws_access_key": "",
   "aws_secret_key": "",
@@ -16,7 +15,6 @@
   "slack_token": "",
   "default_slack_channel": "",
   "distribution_name": "{{ cookiecutter.package_name }}",
-  "ci_user_token": "",
   "_copy_without_render": [
         "*airflow.cfg",
         "*dockerfile"

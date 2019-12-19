@@ -76,6 +76,51 @@ therefore hardware resource hungry.
 * Slack Bot Token (Optional)
 
 # First Time Setup
+### Create a dotenv file at the root of your project with the following variables
+The .env file should already be there. If so, please bypass this step. P.S: Make sure to update your .gitignore file 
+in order not to push your .env file to git.
+FYI: A Dotenv file is a zero-dependency file were you can declare your default environment variables and 
+via docker-compose, these environment variables will be loaded into your docker environments. 
+Learn more about dotenv files [here](https://docs.docker.com/compose/env-file/).
+Your dotenv file should contain the following variables at the very least:
+```
+# contents of .env file
+SALT=3f87b3a5b7e48ba408964366a71947xf249d4ed33b962a9e5d76c5d6124537bc
+# REDIS ENVS
+REDIS_VERSION=3.2.7
+
+# Postgres ENVS
+POSTGRES_VERSION=latest
+POSTGRES_USER=airflow
+POSTGRES_PASSWORD=airflow
+POSTGRES_DB=airflow
+
+# WEBSERVER ENVS
+LOAD_EX=y
+FERNET_KEY=aRp2EFTqmHrZX0y1XzJPvcKaHBdm4Go5bnKRrQ4a8Fw=
+EXECUTOR=Celery
+AWS_ACCESS_KEY={{ cookiecutter.aws_access_key }}
+AWS_SECRET_ACCESS_KEY={{ cookiecutter.aws_secret_key }}
+DEFAULT_SLACK_CHANNEL={{ cookiecutter.default_slack_channel }}
+SLACK_BOT_TOKEN={{ cookiecutter.slack_token }}
+S3_BUCKET_NAME={{ cookiecutter.aws_bucket_name }}
+S3_BUCKET_FOLDER={{ cookiecutter.aws_bucket_folder }}
+DAG_OWNER={{ cookiecutter.full_name|replace('_','-') }}
+
+# FLOWER ENVS
+
+# Scheduler
+NO_PROXY=*
+
+# Worker
+C_FORCE_ROOT=1
+{% if cookiecutter.install_airflow_examples == "yes" %}
+LOAD_EX=y
+{% else %}
+LOAD_EX=n
+{%  endif %}
+```
+
 ### Generate a Fernet Key
 This key is used internally by airflow for encryption. [More Info here](https://bcb.github.io/airflow/fernet-key).
 
@@ -84,8 +129,12 @@ Generate fernet_key, using this code snippet below. fernet_key must be a base64-
 pip install cryptography
 python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
 ```
+If you are using python3, then replace pip with pip3 and python with python3 in the commands above.
 Paste the output of the command above (your generated fernet key) into your airflow.cfg 
 (look for the variable fernet_key) somewhere towards the middle of the file.
+
+### Paste your newly generated fernet key in your dotenv
+So, you would replace the fernet key in the sample dotenv above with your own fernet key
 
 ### Build the Web server image
 This is the image that we will be using in order to build the other containers, given that for instance, 

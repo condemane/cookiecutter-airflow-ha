@@ -1,6 +1,4 @@
 FROM python:3.7
-ARG CI_USER_TOKEN
-RUN echo "machine github.com login $CI_USER_TOKEN" >~/.netrc
 
 RUN apt-get update
 RUN apt-get update && apt-get install -y --no-install-recommends apt-transport-https apt-utils sshpass vim
