@@ -3,8 +3,7 @@
 
 This cookiecutter generates a high availability airflow(webserver, scheduler, workers) application. 
 The generated application uses celery, redis, postgres sql and runs on a highly scalable docker/kubernetes environment. 
-It also uses slack for realtime notifications. To create a slack bot token, please refer to
-[this](https://slack.com/help/articles/215770388-Create-and-regenerate-API-tokens).
+It also uses slack for realtime notifications.
 
 ##### Health status
 [![Travis-CI Build Status](https://travis-ci.com/condemane/cookiecutter-airflow-ha.svg?branch=master)](https://travis-ci.com/condemane/cookiecutter-airflow-ha)
@@ -68,7 +67,9 @@ Install `pipenv`: ` brew install pipenv` if you are running on a mac
 ```bash 
 cookiecutter https://github.com/condemane/cookiecutter-airflow-ha.git
 ```
-![](./img/install.png)
+
+**Video Demo**: https://youtu.be/2YqSdeWqnIg
+* [![Video Demo](./img/ArchitectureDiagram.jpg)](https://youtu.be/2YqSdeWqnIg)
 
 
 # Running the test coverages locally
